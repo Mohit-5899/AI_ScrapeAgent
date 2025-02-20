@@ -3,7 +3,8 @@ langchain-openai==0.0.8
 openai==0.28.0
 playwright==1.41.2
 beautifulsoup4==4.12.3
-requests==2.31.0
-python-dotenv==1.0.1
 gradio==4.19.2
-asyncio==3.4.3
+python-dotenv==1.0.1
+requests==2.31.0
+crawl4ai==0.1.0
+duckduckgo-search==4.4.3

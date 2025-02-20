@@ -1,21 +1,32 @@
 from langchain.tools import Tool
-from scraper import scrape_normal, scrape_firecrawl, scrape_crawl4ai
-
-# Define different tools for each scraping method
-scrape_tool_normal = Tool(
-    name="Web Scraper (Normal)",
-    func=scrape_normal,
-    description="Scrapes text content from a webpage using Playwright & BeautifulSoup."
+from scraper import (
+    scrape_normal,
+    scrape_firecrawl,
+    scrape_crawl4ai,
+    scrape_duckduckgo
 )
 
-scrape_tool_firecrawl = Tool(
-    name="Web Scraper (Firecrawl)",
-    func=scrape_firecrawl,
-    description="Scrapes data using Firecrawl AI API."
-)
-
-scrape_tool_crawl4ai = Tool(
-    name="Web Scraper (Crawl4AI)",
-    func=scrape_crawl4ai,
-    description="Scrapes data using Crawl4AI open-source framework."
-)
+def get_scraping_tools():
+    """Get all available scraping tools"""
+    return [
+        Tool(
+            name="Normal_Scraper",
+            func=scrape_normal,
+            description="Scrapes a webpage using Playwright and BeautifulSoup. Use this for basic web scraping."
+        ),
+        Tool(
+            name="Firecrawl_Scraper",
+            func=scrape_firecrawl,
+            description="Scrapes a webpage using Firecrawl API. Use this for advanced API-based scraping."
+        ),
+        Tool(
+            name="Crawl4AI_Scraper",
+            func=scrape_crawl4ai,
+            description="Scrapes a webpage using Crawl4AI. Use this for AI-powered content extraction."
+        ),
+        Tool(
+            name="DuckDuckGo_Scraper",
+            func=scrape_duckduckgo,
+            description="Scrapes website content using DuckDuckGo search. Use this for getting summarized content from a domain."
+        )
+    ]

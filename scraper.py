@@ -5,6 +5,7 @@ import os
 import asyncio
 from crawl4ai import AsyncWebCrawler
 from dotenv import load_dotenv
+from duckduckgo_search import DDGS
 
 # Load API keys
 load_dotenv()
@@ -57,6 +58,32 @@ def scrape_firecrawl(url: str):
             return {"error": error_msg, "fallback": scrape_normal(url)}
     except Exception as e:
         error_msg = f"Firecrawl error: {str(e)}"
+        print(error_msg)
+        return {"error": error_msg, "fallback": scrape_normal(url)}
+
+def scrape_duckduckgo(url: str):
+    """Web Scraping using DuckDuckGo Search API"""
+    try:
+        # Extract domain from URL for searching
+        domain = url.split("//")[-1].split("/")[0]
+        search_query = f"site:{domain}"
+        
+        results = []
+        with DDGS() as ddgs:
+            # Get text results from DuckDuckGo
+            ddg_results = ddgs.text(search_query, max_results=10)
+            for r in ddg_results:
+                results.append({
+                    'title': r['title'],
+                    'snippet': r['body'],
+                    'link': r['link']
+                })
+        
+        # Extract content from results
+        content = [f"{r['title']}: {r['snippet']}" for r in results]
+        return {"url": url, "method": "DuckDuckGo", "content": content}
+    except Exception as e:
+        error_msg = f"DuckDuckGo error: {str(e)}"
         print(error_msg)
         return {"error": error_msg, "fallback": scrape_normal(url)}
 

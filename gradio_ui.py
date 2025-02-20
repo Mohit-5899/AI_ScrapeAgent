@@ -1,32 +1,59 @@
 import gradio as gr
-from agent import run_agent
+from scraper import (
+    scrape_normal,
+    scrape_firecrawl,
+    scrape_crawl4ai,
+    scrape_duckduckgo
+)
 
-def scrape_with_ai(url, method):
-    """Function that takes a URL & selected method to return the AI-generated summary."""
-    if not url.startswith("http"):
-        return "⚠️ Please enter a valid URL starting with http or https."
-
+def process_url(url: str, method: str):
+    """Process URL based on selected method"""
     try:
-        result = run_agent(url, method)
-        return result
+        if method == "Normal":
+            result = scrape_normal(url)
+        elif method == "Firecrawl":
+            result = scrape_firecrawl(url)
+        elif method == "Crawl4AI":
+            result = scrape_crawl4ai(url)
+        elif method == "DuckDuckGo":
+            result = scrape_duckduckgo(url)
+        else:
+            return "Invalid method selected"
+
+        if "error" in result:
+            return f"Error: {result['error']}\nFallback result: {result.get('fallback', 'No fallback available')}"
+        
+        content = result.get("content", [])
+        if isinstance(content, list):
+            return "\n\n".join(content)
+        return content
     except Exception as e:
-        return f"❌ Error: {str(e)}"
+        return f"Error: {str(e)}"
 
-# Create a Gradio interface with dropdown selection
-with gr.Blocks() as demo:
-    gr.Markdown("## 🌐 AI Web Scraper - Choose Your Scraping Method")
-    gr.Markdown("Enter a website URL and select a scraping method.")
-
-    url_input = gr.Textbox(label="Website URL", placeholder="Enter URL here...")
-    method_dropdown = gr.Dropdown(
-        ["Normal", "Firecrawl", "Crawl4AI"], label="Choose Scraping Method"
+def create_ui():
+    """Create Gradio interface"""
+    iface = gr.Interface(
+        fn=process_url,
+        inputs=[
+            gr.Textbox(label="URL to scrape", placeholder="Enter URL..."),
+            gr.Radio(
+                choices=["Normal", "Firecrawl", "Crawl4AI", "DuckDuckGo"],
+                label="Scraping Method",
+                value="Normal"
+            )
+        ],
+        outputs=gr.Textbox(label="Scraped Content"),
+        title="AI Web Scraping Agent",
+        description="Enter a URL and choose a scraping method to extract content.",
+        examples=[
+            ["https://example.com", "Normal"],
+            ["https://example.com", "Firecrawl"],
+            ["https://example.com", "Crawl4AI"],
+            ["https://example.com", "DuckDuckGo"]
+        ]
     )
-    result_output = gr.Textbox(label="Scraped Summary", interactive=False)
+    return iface
 
-    submit_button = gr.Button("🔍 Scrape Website")
-
-    submit_button.click(fn=scrape_with_ai, inputs=[url_input, method_dropdown], outputs=result_output)
-
-# Run Gradio UI
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=True)
+    ui = create_ui()
+    ui.launch()
